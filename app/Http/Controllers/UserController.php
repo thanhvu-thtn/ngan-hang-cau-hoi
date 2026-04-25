@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 use Illuminate\Http\Request;
 
@@ -121,4 +122,29 @@ class UserController extends Controller
         // 3. Quay lại trang danh sách với thông báo thành công
         return redirect()->route('users.index')->with('success', 'Người dùng đã được xoá khỏi hệ thống.');
     }
+
+    /**
+ * Hiển thị form phân quyền
+ */
+public function assignRoles(User $user)
+{
+    $roles = Role::all();
+    return view('users.assign-roles', compact('user', 'roles'));
+}
+
+/**
+ * Xử lý lưu phân quyền
+ */
+public function updateRoles(Request $request, User $user)
+{
+    $request->validate([
+        'roles' => 'nullable|array'
+    ]);
+
+    // Sử dụng syncRoles để cập nhật bảng model_has_roles
+    //
+    $user->syncRoles($request->roles ?? []);
+
+    return redirect()->route('users.index')->with('success', "Đã cập nhật quyền cho người dùng {$user->name} thành công!");
+}
 }

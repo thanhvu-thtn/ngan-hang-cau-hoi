@@ -1,21 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 // Tạo đủ 7 routes: index, create, store, show, edit, update, destroy
 // Trang hiển thị form upload
-//Route::get('/tests/upload', [TestController::class, 'upload'])->name('tests.upload');
+// Route::get('/tests/upload', [TestController::class, 'upload'])->name('tests.upload');
 
 // Xử lý file Word sau khi nhấn nút Upload
-//Route::post('/tests/upload', [TestController::class, 'importFromWord'])->name('tests.import-word');
-//Route::get('/tests/{id}/pdf', [TestController::class, 'exportPdf'])->name('tests.pdf');
-//Route::get('/tests/{id}/docx', [TestController::class, 'exportWord'])->name('tests.docx');
-//Route::resource('tests', TestController::class);
-//-----------------Không cần đăng nhập vẫn có thể truy cập các route này-----------------
-
+// Route::post('/tests/upload', [TestController::class, 'importFromWord'])->name('tests.import-word');
+// Route::get('/tests/{id}/pdf', [TestController::class, 'exportPdf'])->name('tests.pdf');
+// Route::get('/tests/{id}/docx', [TestController::class, 'exportWord'])->name('tests.docx');
+// Route::resource('tests', TestController::class);
+// -----------------Không cần đăng nhập vẫn có thể truy cập các route này-----------------
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -34,9 +34,25 @@ Route::middleware('auth')->group(function () {
     })->name('main');
 
     Route::get('/', function () {
-    return view('welcome');});
+        return view('welcome');
+    });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    //bảng user
-    // Dòng này sẽ tự động tạo 7 routes: index, create, store, show, edit, update, destroy
-    Route::resource('users', UserController::class);
+    // bảng user
+    // =========================================================
+    // KHU VỰC DÀNH RIÊNG CHO ADMIN (Bảo vệ bằng middleware role)
+    // =========================================================
+    Route::middleware(['role:admin'])->group(function () {
+
+        // Nghiệp vụ phân quyền
+        Route::get('users/{user}/assign-roles', [UserController::class, 'assignRoles'])->name('users.assign-roles');
+        Route::put('users/{user}/assign-roles', [UserController::class, 'updateRoles'])->name('users.update-roles');
+
+        // Quản lý users (7 routes)
+        Route::resource('users', UserController::class);
+
+        // Quản lý roles
+        Route::resource('roles', RoleController::class);
+
+    });
+    // =========================================================
 });
