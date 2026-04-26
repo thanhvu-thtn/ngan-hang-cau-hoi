@@ -1,0 +1,50 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h1 class="text-2xl font-bold text-gray-900">Quản lý Loại câu hỏi</h1>
+    </x-slot>
+
+    <div class="sm:flex sm:items-center mb-8">
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <a href="{{ route('question-types.create') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">+ Thêm loại mới</a>
+        </div>
+    </div>
+
+    @if (session('success'))
+        <div class="mb-4 rounded-md bg-green-50 p-4 ring-1 ring-inset ring-green-600/20 text-sm text-green-800">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg bg-white">
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Tên loại</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Mã (Code)</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Số phương án</th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 text-right"><span class="sr-only">Thao tác</span></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach ($questionTypes as $type)
+                    <tr>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-bold text-gray-900">{{ $type->name }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-indigo-600 font-mono">{{ $type->code }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                                {{ $type->num_choices }} phương án
+                            </span>
+                        </td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                            <a href="{{ route('question-types.edit', $type->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-4">Sửa</a>
+                            <form action="{{ route('question-types.destroy', $type->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</x-app-layout>

@@ -15,14 +15,46 @@
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a href="/main" aria-current="page"
                             class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
+                        {{-- Các chức năng dành cho admin --}}
                         @role('admin')
+                            <a href="{{ route('system_settings.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Hệ thống
+                            </a>
                             <a href="{{ route('users.index') }}"
                                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                                Quản lý người dùng
+                                Người dùng
                             </a>
                             <a href="{{ route('roles.index') }}"
                                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                                Quản lý chức vụ
+                                Chức vụ
+                            </a>
+                            <a href="{{ route('permissions.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Quyền
+                            </a>
+                            <a href="{{ route('grades.index') }}"
+                                class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Khối lớp
+                            </a>
+                            <a href="{{ route('topic-types.index') }}"
+                                class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Kiểu chuyên đề
+                            </a>
+                            <a href="{{ route('question-types.index') }}"
+                                class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Kiểu câu hỏi
+                            </a>
+                        @endrole
+                        {{-- Các chức năng dành cho team-leader --}}
+                        @role('team-leader')
+                            <a href="{{ route('teacher-permissions.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Phân quyền chuyên môn
+                            </a>
+                            <a href="{{ route('topics.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Chuyên đề
                             </a>
                         @endrole
                     </div>
@@ -54,10 +86,16 @@
                                     x-transition:leave-end="transform opacity-0 scale-95" style="display: none;"
                                     class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
 
-                                    <div
-                                        class="block px-4 py-3 text-sm text-gray-700 border-b border-gray-100 bg-gray-50/50">
-                                        <p class="text-xs text-gray-500">Đăng nhập với tư cách</p>
-                                        <p class="font-bold truncate">{{ auth()->user()->name }}</p>
+                                    <div class="ml-3">
+                                        <div class="text-base font-medium leading-none text-white">
+                                            {{ auth()->user()->name }}</div>
+                                        <div class="mt-1 text-sm font-medium leading-none text-gray-400">
+                                            {{ auth()->user()->email }}</div>
+
+                                        <div class="mt-1 text-xs font-medium text-indigo-300">
+                                            Chức vụ:
+                                            {{ auth()->user()->roles->pluck('name')->map(fn($role) => role_dictionary($role))->join(', ') }}
+                                        </div>
                                     </div>
 
                                     <form method="POST" action="/logout" class="m-0 mt-1">
@@ -94,14 +132,46 @@
         <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
             <a href="/main" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
                 aria-current="page">Dashboard</a>
+                {{-- Các chức năng dành cho admin --}}
             @role('admin')
+                <a href="{{ route('system_settings.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Hệ thống
+                </a>
                 <a href="{{ route('users.index') }}"
                     class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                    Quản lý người dùng
+                    Người dùng
                 </a>
                 <a href="{{ route('roles.index') }}"
                     class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                    Quản lý chức vụ
+                    Chức vụ
+                </a>
+                <a href="{{ route('permissions.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Quyền
+                </a>
+                <a href="{{ route('grades.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Khối lớp
+                </a>
+                <a href="{{ route('topic-types.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Kiểu chuyên đề
+                </a>
+                <a href="{{ route('question-types.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Kiểu câu hỏi
+                </a>
+            @endrole
+            {{-- Các chức năng dành cho team-leader --}}
+            @role('team-leader')
+                <a href="{{ route('teacher-permissions.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Phân quyền chuyên môn
+                </a>
+                <a href="{{ route('topics.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Chuyên đề
                 </a>
             @endrole
         </div>

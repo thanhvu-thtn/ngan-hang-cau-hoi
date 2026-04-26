@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -54,7 +55,7 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-   public function edit(Role $role)
+    public function edit(Role $role)
     {
         return view('roles.edit', compact('role'));
     }
@@ -66,10 +67,10 @@ class RoleController extends Controller
     {
         $request->validate([
             // Bỏ qua ID hiện tại khi check trùng lặp
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id 
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
         ], [
             'name.required' => 'Vui lòng nhập tên chức vụ.',
-            'name.unique' => 'Tên chức vụ này đã tồn tại trong hệ thống.'
+            'name.unique' => 'Tên chức vụ này đã tồn tại trong hệ thống.',
         ]);
 
         $role->update(['name' => $request->name]);
@@ -83,6 +84,34 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         $role->delete();
+
         return redirect()->route('roles.index')->with('success', 'Đã xóa chức vụ khỏi hệ thống!');
+    }
+
+    /**
+     * Hiển thị form gán quyền cho Role
+     */
+    public function assignPermissions(Role $role)
+    {
+        $permissions = Permission::all();
+        // Lấy danh sách ID của các quyền mà Role này đang có để check vào checkbox
+        $rolePermissions = $role->permissions->pluck('id')->toArray();
+
+        return view('roles.assign-permissions', compact('role', 'permissions', 'rolePermissions'));
+    }
+
+    /**
+     * Xử lý lưu các quyền được chọn
+     */
+    public function updatePermissions(Request $request, Role $role)
+    {
+        $request->validate([
+            'permissions' => 'nullable|array',
+        ]);
+
+        // Đồng bộ quyền: Xoá hết quyền cũ và thêm các quyền mới được chọn
+        $role->syncPermissions($request->permissions ?? []);
+
+        return redirect()->route('roles.index')->with('success', 'Đã cập nhật quyền cho vai trò thành công!');
     }
 }

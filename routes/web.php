@@ -1,8 +1,15 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GradeController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\QuestionTypeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SystemSettingController;
+use App\Http\Controllers\TeacherPermissionController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TopicController;
+use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,8 +58,42 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
 
         // Quản lý roles
+        // Gán quyền cho Role (Permissions to Role)
+        Route::get('roles/{role}/assign-permissions', [RoleController::class, 'assignPermissions'])->name('roles.assign-permissions');
+        Route::put('roles/{role}/assign-permissions', [RoleController::class, 'updatePermissions'])->name('roles.update-permissions');
         Route::resource('roles', RoleController::class);
+
+        // Quản lý permissions
+        Route::resource('permissions', PermissionController::class);
+
+        // Quản lý System SystemSettings
+        Route::resource('system_settings', SystemSettingController::class);
+
+        // Quản lý Khối lớp
+        Route::resource('grades', GradeController::class);
+
+        // Quản lý Kiểu chuyên đề
+        Route::resource('topic-types', TopicTypeController::class);
+
+        // Quản lý Loại câu hỏi
+        Route::resource('question-types', QuestionTypeController::class);
 
     });
     // =========================================================
+    // =========================================================
+    // KHU VỰC DÀNH RIÊNG CHO tổ trưởng (Bảo vệ bằng middleware role)
+    // =========================================================
+    Route::middleware(['role:team-leader'])->group(function () {
+        Route::get('/teacher-permissions', [TeacherPermissionController::class, 'index'])->name('teacher-permissions.index');
+        Route::get('/teacher-permissions/{teacher}/edit', [TeacherPermissionController::class, 'edit'])->name('teacher-permissions.edit');
+        Route::put('/teacher-permissions/{teacher}', [TeacherPermissionController::class, 'update'])->name('teacher-permissions.update');
+
+        // Import Excel
+        Route::get('/topics/export', [TopicController::class, 'export'])->name('topics.export');
+        Route::get('topics/import', [TopicController::class, 'importForm'])->name('topics.import.form');
+        Route::post('topics/import', [TopicController::class, 'importExcel'])->name('topics.import.process');
+        Route::post('/topics/import-save', [TopicController::class, 'importSave'])->name('topics.import.save');
+        // Quản lý Chuyên đề
+        Route::resource('topics', TopicController::class);
+    });
 });
