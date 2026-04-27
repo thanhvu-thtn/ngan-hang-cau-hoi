@@ -170,4 +170,76 @@ class WordService
         }
         return $innerHTML;
     }
+
+    public function importObjectivesFromWord($wordPath)
+    {
+        $uuid = (string) Str::uuid();
+        $tempFolderPath = storage_path('app/word-template');
+        
+        if (!file_exists($tempFolderPath)) {
+            mkdir($tempFolderPath, 0775, true);
+        }
+
+        $htmlPath = $tempFolderPath . '/' . $uuid . '.html';
+
+        // Gọi Pandoc để chuyển DOCX -> HTML
+        $process = new Process(['pandoc', $wordPath, '-f', 'docx', '-t', 'html',
+        '--mathjax', // <--- THÊM THAM SỐ NÀY VÀO ĐÂY 
+        '-o', $htmlPath]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $htmlContent = file_get_contents($htmlPath);
+        $dom = new \DOMDocument();
+        // Bỏ qua các cảnh báo HTML của DOMDocument
+        // Đọc nội dung file HTML do Pandoc sinh ra
+        $htmlContent = file_get_contents($htmlPath);
+
+        // THÊM DÒNG NÀY: Dùng Regex để xóa sạch các thẻ <span class="math ..."> 
+        // và chỉ giữ lại phần nội dung công thức bên trong ($1)
+        $htmlContent = preg_replace('/<span class="math[^>]*>(.*?)<\/span>/is', '$1', $htmlContent);
+
+        // Load vào DOM như cũ
+        $dom = new \DOMDocument();
+        @$dom->loadHTML(mb_convert_encoding($htmlContent, 'HTML-ENTITIES', 'UTF-8'));
+
+        $results = [];
+        $tables = $dom->getElementsByTagName('table');
+        
+        if ($tables->length > 0) {
+            // Lấy bảng đầu tiên
+            $rows = $tables->item(0)->getElementsByTagName('tr');
+            foreach ($rows as $index => $row) {
+                $cols = $row->getElementsByTagName('td');
+                if ($cols->length == 0) {
+                    $cols = $row->getElementsByTagName('th');
+                }
+
+                if ($cols->length >= 3) {
+                    // Dùng strip_tags cho mã code để bỏ các thẻ <p> dư thừa
+                    $tcCode = trim(strip_tags($this->getInnerHtml($cols->item(0))));
+                    $objCode = trim(strip_tags($this->getInnerHtml($cols->item(1))));
+                    // Giữ nguyên HTML cho description để render công thức
+                    $objDesc = trim($this->getInnerHtml($cols->item(2)));
+
+                    // Bỏ qua dòng tiêu đề
+                    if (strtolower($tcCode) === 'topic_content_code') {
+                        continue;
+                    }
+
+                    $results[] = [
+                        'topic_content_code' => $tcCode,
+                        'objective_code' => $objCode,
+                        'objective_description' => $objDesc
+                    ];
+                }
+            }
+        }
+
+        @unlink($htmlPath); // Xoá file HTML tạm
+        return $results;
+    }
 }

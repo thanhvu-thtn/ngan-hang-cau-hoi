@@ -90,7 +90,19 @@
                     </div>
                 </form>
             </div>
+            @if (session('error'))
+                <div class="flash-message transition-opacity duration-500 ease-in-out mb-4 px-4 py-3 bg-red-100 border-l-4 border-red-500 text-red-700 shadow-sm"
+                    role="alert">
+                    <p class="text-sm font-bold">{{ session('error') }}</p>
+                </div>
+            @endif
 
+            @if (session('success'))
+                <div class="flash-message transition-opacity duration-500 ease-in-out mb-4 px-4 py-3 bg-green-100 border-l-4 border-green-500 text-green-700 shadow-sm"
+                    role="alert">
+                    <p class="text-sm font-bold">{{ session('success') }}</p>
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -106,7 +118,7 @@
                                 Khối</th>
                             <th
                                 class="px-6 py-3 text-center text-[11px] font-bold text-gray-500 uppercase tracking-widest">
-                                Phân loại</th>
+                                Loại</th>
                             <th
                                 class="px-6 py-3 text-right text-[11px] font-bold text-gray-500 uppercase tracking-widest">
                                 Thao tác</th>
@@ -136,6 +148,18 @@
                                 </td>
                                 <td class="px-6 py-2.5 text-right">
                                     <div class="flex justify-end gap-2">
+                                        <a href="{{ route('topics.show', $topic) }}"
+                                            class="text-blue-600 hover:text-blue-900 transition"
+                                            title="Xem nội dung chi tiết">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                        </a>
                                         <a href="{{ route('topics.edit', $topic) }}"
                                             class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                                             title="Chỉnh sửa">
@@ -180,4 +204,25 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tìm tất cả các thẻ có class 'flash-message'
+            const flashMessages = document.querySelectorAll('.flash-message');
+
+            if (flashMessages.length > 0) {
+                // Đặt bộ đếm thời gian 5000ms (5 giây)
+                setTimeout(() => {
+                    flashMessages.forEach(message => {
+                        // Bước 1: Giảm opacity về 0 để tạo hiệu ứng mờ dần (do đã có class transition của Tailwind)
+                        message.style.opacity = '0';
+
+                        // Bước 2: Đợi thêm 500ms (thời gian hiệu ứng mờ) rồi xóa hoàn toàn thẻ HTML để không chiếm không gian
+                        setTimeout(() => {
+                            message.remove();
+                        }, 500);
+                    });
+                }, 5000);
+            }
+        });
+    </script>
 </x-app-layout>

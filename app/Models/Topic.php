@@ -32,4 +32,12 @@ class Topic extends Model
     {
         return $this->belongsTo(TopicType::class);
     }
+
+    /**
+     * Quan hệ: Một chuyên đề có nhiều nội dung
+     */
+    public function contents()
+    {
+        return $this->hasMany(TopicContent::class);
+    }
 }

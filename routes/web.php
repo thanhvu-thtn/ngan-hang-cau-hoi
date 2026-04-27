@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GradeController;
+use App\Http\Controllers\ObjectiveController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\QuestionTypeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\TeacherPermissionController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TopicContentController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\UserController;
@@ -95,5 +97,24 @@ Route::middleware('auth')->group(function () {
         Route::post('/topics/import-save', [TopicController::class, 'importSave'])->name('topics.import.save');
         // Quản lý Chuyên đề
         Route::resource('topics', TopicController::class);
+        // Quản lý Nội dung chuyên đề
+        Route::prefix('topic-contents')->name('topic-contents.')->group(function () {
+            // Các route Resource khác (index, create, store...) đã có sẵn
+
+            // Nhóm route Import
+            Route::get('import', [TopicContentController::class, 'importForm'])->name('import.form');
+            Route::post('import-preview', [TopicContentController::class, 'importPreview'])->name('import.preview');
+            Route::post('import-save', [TopicContentController::class, 'importSave'])->name('import.save');
+            Route::get('export', [TopicContentController::class, 'export'])->name('export'); // Thêm dòng này
+            Route::get('import', [TopicContentController::class, 'importForm'])->name('import.form');
+        });
+        Route::resource('topic-contents', TopicContentController::class);
+
+        // Quản lý Yêu cầu cần đạt
+        Route::get('objectives-import/word', [ObjectiveController::class, 'importWord'])->name('objectives.import.word');
+        Route::post('objectives-import/preview', [ObjectiveController::class, 'previewWord'])->name('objectives.preview.word');
+        Route::post('objectives-import/save', [ObjectiveController::class, 'saveFromWord'])->name('objectives.save.word');
+        Route::post('objectives-import/cancel', [ObjectiveController::class, 'cancelFromWord'])->name('objectives.cancel.word');
+        Route::resource('objectives', ObjectiveController::class);
     });
 });

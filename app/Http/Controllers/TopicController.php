@@ -53,6 +53,18 @@ class TopicController extends Controller
         return view('topics.index', compact('topics', 'grades', 'topicTypes'));
     }
 
+    // Show chi tiết chuyên đề
+    // app/Http/Controllers/TopicController.php
+
+    public function show(Topic $topic)
+    {
+        // Nạp các quan hệ để hiển thị ở trang chi tiết
+        // Giả sử trong Model Topic bạn đã định nghĩa function contents()
+        $topic->load(['contents', 'grade', 'topicType']);
+
+        return view('topics.show', compact('topic'));
+    }
+
     public function create()
     {
         $grades = Grade::all();
@@ -99,9 +111,18 @@ class TopicController extends Controller
 
     public function destroy(Topic $topic)
     {
-        $topic->delete();
+        // Kiểm tra xem chuyên đề này có chứa nội dung (contents) nào không
+        if ($topic->contents()->exists()) {
+            return redirect()->route('topics.index')->with('error', 'Trong chuyên đề này còn có nội dung, không thể xoá. Nếu muốn xoá, bạn phải xoá hết nội dung trong chuyên đề.');
+        }
 
-        return redirect()->route('topics.index')->with('success', 'Đã xóa chuyên đề.');
+        try {
+            $topic->delete();
+
+            return redirect()->route('topics.index')->with('success', 'Đã xoá chuyên đề thành công.');
+        } catch (\Exception $e) {
+            return redirect()->route('topics.index')->with('error', 'Có lỗi xảy ra khi xoá: '.$e->getMessage());
+        }
     }
 
     public function importForm()
@@ -236,7 +257,7 @@ class TopicController extends Controller
 
         // Giữ nguyên các bộ lọc
         if ($request->filled('code')) {
-            $query->where('topics.code', 'like', '%' . $request->code . '%');
+            $query->where('topics.code', 'like', '%'.$request->code.'%');
         }
         if ($request->filled('grade_id')) {
             $query->where('topics.grade_id', $request->grade_id);
@@ -247,8 +268,8 @@ class TopicController extends Controller
 
         // Giữ nguyên sắp xếp
         $query->orderBy('topics.code', 'asc')
-              ->orderBy('grades.code', 'asc')
-              ->orderBy('topic_types.code', 'asc');
+            ->orderBy('grades.code', 'asc')
+            ->orderBy('topic_types.code', 'asc');
 
         // Dùng get() để lấy TOÀN BỘ dữ liệu thỏa mãn điều kiện (không dùng paginate khi xuất file)
         $topics = $query->get();
