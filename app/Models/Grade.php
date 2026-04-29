@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Grade extends Model
 {
@@ -14,4 +15,12 @@ class Grade extends Model
         'name',
         'code',
     ];
+
+    /**
+     * Quan hệ: Một Khối lớp có nhiều Chuyên đề
+     */
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topic::class);
+    }
 }

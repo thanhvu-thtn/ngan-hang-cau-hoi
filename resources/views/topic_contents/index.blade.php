@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Quản lý Nội dung Chuyên đề') }}
+                {{ __('Nội dung chuyên đề') }}
             </h2>
             <div class="flex gap-2">
                 <a href="{{ route('topic-contents.export', request()->all()) }}"
@@ -102,14 +102,48 @@
                     </div>
                 </form>
             </div>
+@if (session('success'))
+                    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                        x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="bg-green-50 border-l-4 border-green-500 p-4 shadow-sm rounded-r-lg mb-4 flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-bold text-green-800">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
 
+                @if (session('error'))
+                    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                        x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-r-lg mb-4 flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-bold text-red-800">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th
                                 class="px-6 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-widest">
-                                Mã định danh</th>
+                                Mã nội dung</th>
                             <th
                                 class="px-6 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-widest">
                                 Tên nội dung</th>
@@ -158,6 +192,18 @@
                                 </td>
                                 <td class="px-6 py-2.5 text-right">
                                     <div class="flex justify-end gap-2">
+                                        {{-- Nút Show mới thêm --}}
+                                        <a href="{{ route('topic-contents.show', $item) }}"
+                                            class="p-1 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                            title="Xem chi tiết">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
                                         <a href="{{ route('topic-contents.edit', $item) }}"
                                             class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                                             title="Sửa">

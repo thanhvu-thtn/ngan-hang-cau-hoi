@@ -59,6 +59,24 @@ class TopicContentController extends Controller
         return view('topic_contents.index', compact('contents', 'grades', 'topicTypes'));
     }
 
+    // Hiển thị chi tiết nội dung
+    public function show(Request $request, TopicContent $topicContent)
+    {
+        $uuid = null;
+        // Nếu có truyền topic_id từ trang topics.show
+        if ($request->has('topic_id')) {
+            $uuid = (string) Str::uuid();
+            // Lưu topic_id vào cache trong 30 phút với key là uuid
+            Cache::put("back_path_{$uuid}", $request->topic_id, now()->addMinutes(30));
+        }
+
+        $topicContent->load(['objectives' => function ($query) {
+            $query->orderBy('code', 'asc');
+        }, 'topic.grade', 'topic.topicType']);
+
+        return view('topic_contents.show', compact('topicContent', 'uuid'));
+    }
+
     // Giao diện thêm mới
     public function create(Request $request)
     {
@@ -166,6 +184,10 @@ class TopicContentController extends Controller
         $fromTopicId = $request->query('from_topic');
 
         try {
+            if ($topicContent->objectives()->exists()) {
+                // 2. Nếu có, trả về thông báo lỗi và không thực hiện xóa
+                return redirect()->back()->with('error', "Nội dung '{$topicContent->name}' có chứa yêu cầu cần đạt nên không xoá được.");
+            }
             $topicContent->delete();
 
             // 2. Kiểm tra: Nếu có truyền topic_id thì quay về trang show của Topic đó
@@ -303,5 +325,19 @@ class TopicContentController extends Controller
         $contents = $query->get();
 
         return $excelService->exportTopicContents($contents);
+    }
+
+    // Quay lại thông minh của hàm show
+    public function back($uuid = null)
+    {
+        // Kiểm tra nếu có uuid và cache tồn tại
+        if ($uuid && Cache::has("back_path_{$uuid}")) {
+            $topicId = Cache::pull("back_path_{$uuid}"); // Lấy ra và xóa luôn cache
+
+            return redirect()->route('topics.show', $topicId);
+        }
+
+        // Mặc định quay về trang index của Topic Content
+        return redirect()->route('topic-contents.index');
     }
 }

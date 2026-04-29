@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CognitiveLevelController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ObjectiveController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\QuestionStatusController;
 use App\Http\Controllers\QuestionTypeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SystemSettingController;
@@ -13,6 +15,8 @@ use App\Http\Controllers\TopicContentController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\QuestionLayoutController;
+use App\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 
 // Tạo đủ 7 routes: index, create, store, show, edit, update, destroy
@@ -46,6 +50,9 @@ Route::middleware('auth')->group(function () {
         return view('welcome');
     });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    //Bảng questions
+    Route::resource('questions', QuestionController::class);
     // bảng user
     // =========================================================
     // KHU VỰC DÀNH RIÊNG CHO ADMIN (Bảo vệ bằng middleware role)
@@ -80,6 +87,14 @@ Route::middleware('auth')->group(function () {
         // Quản lý Loại câu hỏi
         Route::resource('question-types', QuestionTypeController::class);
 
+        // Quản lý Mức độ nhận thức
+        Route::resource('cognitive-levels', CognitiveLevelController::class);
+
+        // Trạng thái câu hỏi
+        Route::resource('question-statuses', QuestionStatusController::class);
+        // Bố cục câu hỏi
+        Route::resource('question-layouts', QuestionLayoutController::class);
+
     });
     // =========================================================
     // =========================================================
@@ -108,13 +123,19 @@ Route::middleware('auth')->group(function () {
             Route::get('export', [TopicContentController::class, 'export'])->name('export'); // Thêm dòng này
             Route::get('import', [TopicContentController::class, 'importForm'])->name('import.form');
         });
+        // Route quay lại thông minh cho Topic Content
+        Route::get('topic-contents/back/{uuid?}', [TopicContentController::class, 'back'])->name('topic-contents.back');
         Route::resource('topic-contents', TopicContentController::class);
 
         // Quản lý Yêu cầu cần đạt
+        Route::get('objectives/word-export', [ObjectiveController::class, 'wordExport'])->name('objectives.word-export');
         Route::get('objectives-import/word', [ObjectiveController::class, 'importWord'])->name('objectives.import.word');
         Route::post('objectives-import/preview', [ObjectiveController::class, 'previewWord'])->name('objectives.preview.word');
         Route::post('objectives-import/save', [ObjectiveController::class, 'saveFromWord'])->name('objectives.save.word');
         Route::post('objectives-import/cancel', [ObjectiveController::class, 'cancelFromWord'])->name('objectives.cancel.word');
         Route::resource('objectives', ObjectiveController::class);
     });
+    
 });
+
+

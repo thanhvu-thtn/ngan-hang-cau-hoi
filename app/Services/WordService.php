@@ -40,7 +40,7 @@ class WordService
         }, $content);
 
         // 4. Render HTML và lưu file
-        $html = View::make('partials.word.export', ['content' => $content])->render();
+        $html = View::make('components.word.export', ['content' => $content])->render();
         
         // Lệnh này bây giờ sẽ chạy mượt mà vì thư mục đã chắc chắn tồn tại
         file_put_contents($htmlFile, $html);

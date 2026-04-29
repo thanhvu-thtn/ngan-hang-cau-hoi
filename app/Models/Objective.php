@@ -23,4 +23,12 @@ class Objective extends Model
     {
         return $this->belongsTo(TopicContent::class, 'topic_content_id');
     }
+
+    /**
+     * Quan hệ Nhiều - Nhiều: Các câu hỏi phục vụ cho YCCĐ này
+     */
+    public function questions()
+    {
+        return $this->belongsToMany(Question::class, 'objective_question');
+    }
 }

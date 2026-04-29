@@ -2,10 +2,11 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Chuyên đề: <span class="text-indigo-600">{{ $topic->name }}</span>
+                Nội dung chuyên đề: {{ $topicContent->name }}
             </h2>
-            <a href="{{ route('topics.index') }}" class="text-sm text-gray-500 hover:underline">
-                &larr; Quay lại danh sách
+            <a href="{{ route('topic-contents.back', ['uuid' => $uuid ?? '']) }}"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-600 transition">
+                Quay lại
             </a>
         </div>
     </x-slot>
@@ -13,21 +14,24 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 shadow sm:rounded-lg border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 border-b pb-2">Thông tin chung</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Mã chuyên đề</p>
-                        <p class="text-lg font-bold text-gray-800">{{ $topic->code }}</p>
+                        <p class="text-sm text-gray-500">Mã nội dung:</p>
+                        <p class="font-medium text-gray-900">{{ $topicContent->code }}</p>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Khối lớp</p>
-                        <p class="text-lg font-medium text-gray-800">{{ $topic->grade->name }}</p>
+                        <p class="text-sm text-gray-500">Thuộc Chuyên đề:</p>
+                        <p class="font-medium text-gray-900">
+                            [{{ $topicContent->topic->code }}] {{ $topicContent->topic->name }}
+                        </p>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Phân loại</p>
-                        <span class="px-2 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700">
-                            {{ $topic->topicType->name }}
-                        </span>
+                        <p class="text-sm text-gray-500">Khối & Loại:</p>
+                        <p class="font-medium text-gray-900">
+                            {{ $topicContent->topic->grade->name }} - {{ $topicContent->topic->topicType->name }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -66,50 +70,51 @@
                     </div>
                 </div>
             @endif
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-gray-700">Danh sách nội dung chi tiết</h3>
-                        <span class="text-sm text-gray-500">Tổng cộng: {{ $topic->contents->count() }} mục</span>
+            <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-700">Yêu cầu cần đạt (Objectives)</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                            {{ $topicContent->objectives->count() }} mục
+                        </span>
+                        {{-- Nút Thêm mới YCCĐ --}}
+                        <a href="{{ route('objectives.create', ['topic_content_id' => $topicContent->id]) }}"
+                            class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Thêm yêu cầu cần đạt
+                        </a>
                     </div>
-                    <a href="{{ route('topic-contents.create', ['topic_id' => $topic->id]) }}"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition">
-                        + Thêm nội dung
-                    </a>
                 </div>
 
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">STT</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Mã nội dung</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Tên nội dung chi
+                            <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Mã YCCĐ
+                            </th>
+                            <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Mô tả chi
                                 tiết</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Thao tác</th>
+                            {{-- Header cột Thao tác mới --}}
+                            <th
+                                class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-center w-28">
+                                Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($topic->contents as $index => $content)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm text-gray-500">{{ $index + 1 }}</td>
-                                <td class="px-6 py-4 text-sm font-mono font-bold text-indigo-600">{{ $content->code }}
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($topicContent->objectives as $obj)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 align-top font-mono text-sm text-indigo-600 font-bold">
+                                    {{ $obj->code }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $content->name }}</td>
-                                <td class="px-4 py-4 text-center text-sm font-medium align-middle">
+                                <td class="px-6 py-4 text-gray-700 leading-relaxed format-katex">
+                                    {!! $obj->description !!}
+                                </td>
+                                {{-- Cột Thao tác với các Icon --}}
+                                <td class="px-6 py-4 text-center align-top">
                                     <div class="flex justify-center space-x-3">
-                                        <a href="{{ route('topic-contents.show', ['topic_content' => $content->id, 'topic_id' => $topic->id]) }}"
-                                            class="text-emerald-600 hover:text-emerald-900 transition-colors"
-                                            title="Xem chi tiết">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
-
-                                        <a href="{{ route('topic-contents.edit', ['topic_content' => $content->id, 'from_topic' => $topic->id]) }}"
+                                        <a href="{{ route('objectives.edit', ['objective' => $obj->id, 'topic_content_id' => $topicContent->id]) }}"
                                             class="text-blue-600 hover:text-blue-900 transition-colors"
                                             title="Chỉnh sửa">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -119,10 +124,8 @@
                                             </svg>
                                         </a>
 
-                                        <form
-                                            action="{{ route('topic-contents.destroy', ['topic_content' => $content->id, 'from_topic' => $topic->id]) }}"
-                                            method="POST"
-                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa nội dung này?');"
+                                        <form action="{{ route('objectives.destroy', ['objective' => $obj->id, 'topic_content_id' => $topicContent->id]) }}" method="POST"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa yêu cầu này?')"
                                             class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -142,8 +145,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-10 text-center text-gray-400 italic">
-                                    Chuyên đề này hiện chưa có nội dung chi tiết nào.
+                                <td colspan="3" class="px-6 py-10 text-center text-gray-400 italic">
+                                    Chưa có yêu cầu cần đạt nào cho nội dung này.
                                 </td>
                             </tr>
                         @endforelse

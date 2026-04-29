@@ -45,6 +45,10 @@
                                 class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                                 Kiểu câu hỏi
                             </a>
+                            <a href="{{ route('cognitive-levels.index') }}"
+                                class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Mức độ nhận thức
+                            </a>
                         @endrole
                         {{-- Các chức năng dành cho team-leader --}}
                         @role('team-leader')
@@ -161,6 +165,10 @@
                 <a href="{{ route('question-types.index') }}"
                     class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                     Kiểu câu hỏi
+                </a>
+                <a href="{{ route('cognitive-levels.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Mức độ nhận thức
                 </a>
             @endrole
             {{-- Các chức năng dành cho team-leader --}}

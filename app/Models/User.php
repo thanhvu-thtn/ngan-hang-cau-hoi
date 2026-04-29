@@ -16,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -29,5 +29,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Danh sách câu hỏi mà người dùng này đã soạn thảo
+     */
+    public function createdQuestions()
+    {
+        return $this->hasMany(Question::class, 'created_by_id');
+    }
+
+    /**
+     * Danh sách câu hỏi mà người dùng này được phân công thẩm định
+     */
+    public function reviewedQuestions()
+    {
+        return $this->hasMany(Question::class, 'reviewer_id');
     }
 }

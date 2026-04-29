@@ -14,4 +14,9 @@ class QuestionType extends Model
         'code',
         'num_choices',
     ];
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class, 'question_type_id');
+    }
 }
