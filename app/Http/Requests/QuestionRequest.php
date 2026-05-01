@@ -22,6 +22,7 @@ class QuestionRequest extends FormRequest
 
         $rules = [
             'code' => ['required', 'string', 'max:50', Rule::unique('questions', 'code')->ignore($questionId)],
+            'description' => ['nullable', 'string', 'max:255'],
             'question_type_id' => ['required', 'integer', 'exists:question_types,id'],
             'cognitive_level_id' => ['required', 'integer', 'exists:cognitive_levels,id'],
             'question_status_id' => ['required', 'integer', 'exists:question_statuses,id'],
@@ -46,7 +47,7 @@ class QuestionRequest extends FormRequest
                     $rules['choices'] = ['required', 'array', 'size:4'];
                     $rules['choices.*.content'] = ['required', 'string'];
                     $rules['choices.*.is_true'] = ['required', 'boolean'];
-
+                    $rules['choices.*.order_index'] = ['nullable', 'integer'];
                     $rules['choices'][] = function ($attribute, $value, $fail) {
                         $trueCount = collect($value)->where('is_true', true)->count();
                         if ($trueCount !== 1) {
@@ -56,23 +57,21 @@ class QuestionRequest extends FormRequest
                     break;
 
                 case 'TF':
-                    $rules['choices'] = ['required', 'array', 'size:1'];
-                    $rules['choices.*.is_true'] = ['required', 'boolean'];
+                    // Chỉ yêu cầu 1 biến đơn tf_choice (dạng boolean)
+                    $rules['tf_choice'] = ['required', 'boolean'];
                     break;
 
                 case 'SA':
-                    $rules['choices'] = ['required', 'array', 'size:1'];
-                    // Ràng buộc khắt khe cho nội dung đáp án SA
-                    $rules['choices.*.content'] = [
+                    // Chỉ yêu cầu 1 biến đơn sa_choice, giữ nguyên các ràng buộc khắt khe
+                    $rules['sa_choice'] = [
                         'required',
                         'string',
-                        'size:4',
+                        'max:4',
                         'regex:/^[\d\-,]+$/', // Chỉ cho phép số 0-9, dấu - và dấu ,
                     ];
                     break;
 
                 case 'ES':
-                    $rules['choices'] = ['nullable', 'array', 'size:0'];
                     break;
             }
         }

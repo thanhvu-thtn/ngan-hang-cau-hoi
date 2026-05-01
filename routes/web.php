@@ -17,6 +17,7 @@ use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QuestionLayoutController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\SharedContextController;
 use Illuminate\Support\Facades\Route;
 
 // Tạo đủ 7 routes: index, create, store, show, edit, update, destroy
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     //Bảng questions
-    Route::resource('questions', QuestionController::class);
+   
     // bảng user
     // =========================================================
     // KHU VỰC DÀNH RIÊNG CHO ADMIN (Bảo vệ bằng middleware role)
@@ -136,6 +137,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('objectives', ObjectiveController::class);
     });
     
+
+    Route::middleware(['can:create-questions'])->group(function () {
+         Route::resource('questions', QuestionController::class);
+         Route::resource('shared-contexts', SharedContextController::class);
+    });
 });
 
 

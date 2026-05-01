@@ -14,6 +14,7 @@ class Question extends Model
 
     protected $fillable = [
         'code',
+        'description',
         'question_type_id',
         'cognitive_level_id',
         'question_status_id',

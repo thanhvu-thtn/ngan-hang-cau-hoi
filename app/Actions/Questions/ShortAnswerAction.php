@@ -11,14 +11,12 @@ class ShortAnswerAction extends BaseQuestionAction
     {
         return DB::transaction(function () use ($data, $question) {
             $q = $this->saveBaseData($data, $question);
-
-            // Xóa đáp án cũ
+            // BẮT BUỘC THÊM: Xóa các lựa chọn cũ trước khi lưu mới
             $q->choices()->delete();
-
             // Lưu đáp án trả lời ngắn (chỉ 1 dòng)
-            if (isset($data['correct_answer'])) {
+            if (isset($data['sa_choice'])) {
                 $q->choices()->create([
-                    'content'     => $data['correct_answer'],
+                    'content'     => $data['sa_choice'], // Lưu trực tiếp nội dung đáp án SA vào trường content
                     'is_true'     => true,
                     'order_index' => 1,
                 ]);

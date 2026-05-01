@@ -22,8 +22,10 @@ class MultipleChoiceAction extends BaseQuestionAction
                 // Kỳ vọng $data['choices'] là mảng gồm 4 phần tử: 
                 // [['content' => 'A...', 'is_true' => true, 'order_index' => 1], ...]
                 foreach ($data['choices'] as $choiceData) {
+                    // QUÉT ẢNH TRONG TỪNG ĐÁP ÁN
+                    $processedContent = $this->imageService->processHtmlContent($choiceData['content']);
                     $q->choices()->create([
-                        'content'     => $choiceData['content'],
+                        'content'     => $processedContent,
                         'is_true'     => $choiceData['is_true'] ?? false,
                         'order_index' => $choiceData['order_index'] ?? 0,
                     ]);

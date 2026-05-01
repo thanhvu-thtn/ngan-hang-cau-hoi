@@ -61,6 +61,18 @@
                                 Chuyên đề
                             </a>
                         @endrole
+                        {{-- Các chức năng dành cho người dùng có quyền tạo câu hỏi --}}
+                        @can('create-questions')
+                             <a href="{{ route('questions.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Câu hỏi
+                            </a>
+                            {{-- Câu hỏi có dữ liệu dùng chung --}}
+                             <a href="{{ route('shared-contexts.index') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Dữ liệu dùng chung
+                            </a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -182,6 +194,18 @@
                     Chuyên đề
                 </a>
             @endrole
+            {{-- Các chức năng dành cho người dùng có quyền tạo câu hỏi --}}
+            @can('create-questions')
+                 <a href="{{ route('questions.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Câu hỏi
+                </a>
+                {{-- Câu hỏi có dữ liệu dùng chung --}}
+                 <a href="{{ route('shared-contexts.index') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Dữ liệu dùng chung
+                </a>
+            @endcan
         </div>
         <div class="border-t border-gray-700 pb-3 pt-4">
             <div class="flex items-center px-5">

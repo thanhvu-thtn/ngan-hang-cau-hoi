@@ -10,18 +10,16 @@ class TrueFalseAction extends BaseQuestionAction
     public function execute(array $data, ?Question $question = null): Question
     {
         return DB::transaction(function () use ($data, $question) {
+            // 1. Lưu các thông tin chung của câu hỏi (stem, code, type,...)
             $q = $this->saveBaseData($data, $question);
-
-            if (isset($data['choices']) && is_array($data['choices'])) {
-                $q->choices()->delete();
-
-                // Lấy phần tử đầu tiên (duy nhất) của mảng choices
-                $answer = $data['choices'][0];
-
+            // BẮT BUỘC THÊM: Xóa các lựa chọn cũ trước khi lưu mới
+            $q->choices()->delete();
+            // 3. Lưu đáp án Đúng/Sai
+            // Biến $data['tf_choice'] được gửi lên từ request là boolean (true/false hoặc 1/0)
+            if (isset($data['tf_choice'])) {
                 $q->choices()->create([
-                    // Nếu là true thì lưu chữ 'Đúng', false lưu chữ 'Sai' (hoặc True/False)
-                    'content'     => $answer['is_true'] ? 'Đúng' : 'Sai', 
-                    'is_true'     => $answer['is_true'],
+                    'content' => $data['tf_choice'] ? 'Đúng' : 'Sai', // Chuyển boolean thành text để hiển thị nếu cần
+                    'is_true' => true, // Luôn là true vì đây là dòng lưu đáp án đúng duy nhất
                     'order_index' => 1,
                 ]);
             }
