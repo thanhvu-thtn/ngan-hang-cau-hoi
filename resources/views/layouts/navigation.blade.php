@@ -72,6 +72,10 @@
                                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                                 Dữ liệu dùng chung
                             </a>
+                            <a href="{{ route('question-imports.create') }}"
+                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                Word Import
+                            </a>
                         @endcan
                     </div>
                 </div>
@@ -204,6 +208,11 @@
                  <a href="{{ route('shared-contexts.index') }}"
                     class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                     Dữ liệu dùng chung
+                </a>
+                {{-- Import câu hỏi từ Word --}}
+                 <a href="{{ route('question-imports.create') }}"
+                    class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    Word Import
                 </a>
             @endcan
         </div>

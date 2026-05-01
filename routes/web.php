@@ -5,9 +5,12 @@ use App\Http\Controllers\CognitiveLevelController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ObjectiveController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionLayoutController;
 use App\Http\Controllers\QuestionStatusController;
 use App\Http\Controllers\QuestionTypeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SharedContextController;
 use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\TeacherPermissionController;
 use App\Http\Controllers\TestController;
@@ -15,9 +18,7 @@ use App\Http\Controllers\TopicContentController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\QuestionLayoutController;
-use App\Http\Controllers\QuestionController;
-use App\Http\Controllers\SharedContextController;
+use App\Http\Controllers\QuestionImportController;
 use Illuminate\Support\Facades\Route;
 
 // Tạo đủ 7 routes: index, create, store, show, edit, update, destroy
@@ -52,8 +53,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    //Bảng questions
-   
+    // Bảng questions
+
     // bảng user
     // =========================================================
     // KHU VỰC DÀNH RIÊNG CHO ADMIN (Bảo vệ bằng middleware role)
@@ -136,12 +137,30 @@ Route::middleware('auth')->group(function () {
         Route::post('objectives-import/cancel', [ObjectiveController::class, 'cancelFromWord'])->name('objectives.cancel.word');
         Route::resource('objectives', ObjectiveController::class);
     });
-    
-
+    // =========================================================
+    // KHU VỰC DÀNH RIÊNG CHO người có quyền tạo câu hỏi (Bảo vệ bằng middleware can)
+    // =========================================================
     Route::middleware(['can:create-questions'])->group(function () {
-         Route::resource('questions', QuestionController::class);
-         Route::resource('shared-contexts', SharedContextController::class);
+        Route::resource('questions', QuestionController::class);
+        Route::resource('shared-contexts', SharedContextController::class);
+
+        //IMPORT TỪ WORD
+        // Dùng explicit routes thay vì resource vì luồng không theo CRUD chuẩn
+        Route::prefix('question-imports')->name('question-imports.')->group(function () {
+
+            // Bước 1 & 6: Form upload file Word
+            Route::get('create', [QuestionImportController::class, 'create'])->name('create');
+
+            // Bước 2 & 3: Nhận file → parse → redirect sang preview
+            Route::post('/', [QuestionImportController::class, 'store'])->name('store');
+
+            // Bước 4: Màn hình xem trước kết quả parse
+            Route::get('preview', [QuestionImportController::class, 'preview'])->name('preview');
+
+            // Bước 5: Xác nhận → import thật vào DB
+            Route::post('execute', [QuestionImportController::class, 'execute'])->name('execute');
+
+        });
+
     });
 });
-
-

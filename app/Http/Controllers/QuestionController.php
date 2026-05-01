@@ -252,8 +252,8 @@ class QuestionController extends Controller
     public function destroy(Request $request, Question $question)
     {
         // 1. Kiểm tra quyền
-        if (! $request->user()->can('approve-questions')) {
-            abort(403, 'Bạn không đủ thẩm quyền xoá.');
+         if (! $request->user()->can('approve-questions')) {
+            return back()->with('error', 'Bạn không đủ thẩm quyền xoá.');
         }
 
         $source = $request->input('source', 'index');
@@ -267,7 +267,7 @@ class QuestionController extends Controller
         if ($source === 'shared_context') {
             $sentSharedContextId = (int) $request->input('shared_context_id');
             if ((int) $question->shared_context_id !== $sentSharedContextId) {
-                abort(403, 'Dữ liệu dùng chung không khớp, không thể xoá.');
+                return back()->with('error', "Câu hỏi {$question->code} không thuộc dữ liệu dùng chung đang xem, không thể xoá.");
             }
         }
 
